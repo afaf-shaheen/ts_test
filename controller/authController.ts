@@ -1,8 +1,9 @@
 import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
 import prisma from "../prisma";
+import { Request, Response } from "express";
 
-export const login = async (req: any, res: any) => {
+export const login = async (req: Request, res: Response) => {
     const { email, password } = req.body;
     if (!email || !password)
         return res.status(400).json({ message: "Email and Password are required" });
