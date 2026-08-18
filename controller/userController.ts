@@ -1,7 +1,9 @@
-import { Request, Response, NextFunction } from "express";
+import { Response, NextFunction } from "express";
+import { AuthRequest } from "../middleware/check";
 import * as userService from "../service/userService";
 
-export const getAllUsers = async (req: Request, res: Response, next: NextFunction) => {
+//just for me to test the user controller
+export const getAllUsers = async (req: AuthRequest, res: Response, next: NextFunction) => {
     try {
         const users = await userService.getAllUsers();
         res.status(200).json({ data: users });
@@ -10,7 +12,7 @@ export const getAllUsers = async (req: Request, res: Response, next: NextFunctio
     }
 };
 
-export const getUserById = async (req: Request, res: Response, next: NextFunction) => {
+export const getUserById = async (req: AuthRequest, res: Response, next: NextFunction) => {
     try {
         const user = await userService.getUserById(Number(req.params.id));
         res.status(200).json({ data: user });
@@ -19,21 +21,22 @@ export const getUserById = async (req: Request, res: Response, next: NextFunctio
     }
 };
 
-export const updateUser = async (req: Request, res: Response, next: NextFunction) => {
+export const updateUser = async (req: AuthRequest, res: Response, next: NextFunction) => {
     try {
-        const user = await userService.updateUser(Number(req.params.id), {
-            name: req.body.name,
-            email: req.body.email,
-        });
+        const user = await userService.updateUser(
+            Number(req.params.id),
+            req.user!.id,
+            { name: req.body.name, email: req.body.email }
+        );
         res.status(200).json({ data: user });
     } catch (err) {
         next(err);
     }
 };
 
-export const deleteUser = async (req: Request, res: Response, next: NextFunction) => {
+export const deleteUser = async (req: AuthRequest, res: Response, next: NextFunction) => {
     try {
-        await userService.deleteUser(Number(req.params.id));
+        await userService.deleteUser(Number(req.params.id), req.user!.id);
         res.status(204).send();
     } catch (err) {
         next(err);

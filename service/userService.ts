@@ -31,43 +31,34 @@ export const getUserById = async (id: number) => {
 
 export const updateUser = async (
     id: number,
-    data: {
-        name?: string;
-        email?: string;
-    }
+    currentUserId: number,
+    data: { name?: string; email?: string }
 ) => {
+    if (id !== currentUserId) {
+        throw new AppError("Not authorized to modify this account", 403);
+    }
+
     try {
         return await prisma.user.update({
             where: { id },
-            data: {
-                name: data.name,
-                email: data.email,
-            },
-            select: {
-                id: true,
-                name: true,
-                email: true,
-            },
+            data: { name: data.name, email: data.email },
+            select: { id: true, name: true, email: true },
         });
     } catch (err: any) {
-        if (err.code === "P2025") {
-            throw new AppError("User not found", 404);
-        }
-
+        if (err.code === "P2025") throw new AppError("User not found", 404);
         throw err;
     }
 };
 
-export const deleteUser = async (id: number) => {
-    try {
-        await prisma.user.delete({
-            where: { id },
-        });
-    } catch (err: any) {
-        if (err.code === "P2025") {
-            throw new AppError("User not found", 404);
-        }
+export const deleteUser = async (id: number, currentUserId: number) => {
+    if (id !== currentUserId) {
+        throw new AppError("Not authorized to delete this account", 403);
+    }
 
+    try {
+        await prisma.user.delete({ where: { id } });
+    } catch (err: any) {
+        if (err.code === "P2025") throw new AppError("User not found", 404);
         throw err;
     }
 };
