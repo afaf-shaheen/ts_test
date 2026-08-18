@@ -1,7 +1,7 @@
 import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
 import prisma from "../prisma";
-import { JWT_SECRET } from "../config/env";
+import { JWT_SECRET,JWT_EXPIRES_IN} from "../config/env";
 import { AppError } from "../utils/error.util";
 
 export const register = async ({name,email,password,}: 
@@ -60,16 +60,10 @@ export const login = async ({
     if (!isMatch) {
         throw new AppError("Invalid Credentials", 401);
     }
-    const TOKEN_EXPIRY = "1h";
     const token = jwt.sign(
-        {
-            id: user.id,
-            email: user.email,
-        },
+        { id: user.id, email: user.email },
         JWT_SECRET,
-        {
-            expiresIn: TOKEN_EXPIRY,
-        }
+        { expiresIn: JWT_EXPIRES_IN }
     );
 
     return token;
