@@ -1,6 +1,6 @@
 import { Status } from "../generated/prisma/enums";
 import prisma from "../prisma";
-import { AppError } from "../utils/errors";
+import { AppError } from "../utils/error.util";
 
 export const addTask = async ({
     title,
@@ -30,11 +30,7 @@ export const getTasks = async (userId: number, status?: string) => {
         },
         include: {
             user: {
-                select: {
-                    id: true,
-                    name: true,
-                    email: true,
-                },
+                select: { id: true, name: true, email: true },
             },
         },
     });
@@ -43,10 +39,7 @@ export const getTasks = async (userId: number, status?: string) => {
 export const updateTask = async (
     id: number,
     userId: number,
-    data: {
-        title?: string;
-        status?: any;
-    }
+    data: { title?: string; status?: any }
 ) => {
     const task = await prisma.task.findUnique({ where: { id } });
 
@@ -60,10 +53,7 @@ export const updateTask = async (
 
     return await prisma.task.update({
         where: { id },
-        data: {
-            title: data.title,
-            status: data.status,
-        },
+        data: { title: data.title, status: data.status },
     });
 };
 

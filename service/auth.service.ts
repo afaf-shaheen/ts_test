@@ -2,7 +2,7 @@ import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
 import prisma from "../prisma";
 import { JWT_SECRET } from "../config/env";
-import { AppError } from "../utils/errors";
+import { AppError } from "../utils/error.util";
 
 export const register = async ({name,email,password,}: 
     {
@@ -10,7 +10,8 @@ export const register = async ({name,email,password,}:
     email: string;
     password: string;
 }) => {
-    const hashedPassword = await bcrypt.hash(password, 10);
+    const SALT_ROUNDS = 10;
+    const hashedPassword = await bcrypt.hash(password, SALT_ROUNDS);
 
     try {
         const user = await prisma.user.create({
@@ -59,7 +60,7 @@ export const login = async ({
     if (!isMatch) {
         throw new AppError("Invalid Credentials", 401);
     }
-
+    const TOKEN_EXPIRY = "1h";
     const token = jwt.sign(
         {
             id: user.id,
@@ -67,7 +68,7 @@ export const login = async ({
         },
         JWT_SECRET,
         {
-            expiresIn: "1h",
+            expiresIn: TOKEN_EXPIRY,
         }
     );
 

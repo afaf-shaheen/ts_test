@@ -1,25 +1,17 @@
 import prisma from "../prisma";
-import { AppError } from "../utils/errors";
+import { AppError } from "../utils/error.util";
+import { handleNotFound } from "../utils/notFound.util";
 
 export const getAllUsers = async () => {
     return prisma.user.findMany({
-        select: {
-            id: true,
-            name: true,
-            email: true,
-        },
+        select: { id: true, name: true, email: true },
     });
 };
 
 export const getUserById = async (id: number) => {
     const user = await prisma.user.findUnique({
         where: { id },
-        select: {
-            id: true,
-            name: true,
-            email: true,
-            tasks: true,
-        },
+        select: { id: true, name: true, email: true, tasks: true },
     });
 
     if (!user) {
@@ -45,8 +37,7 @@ export const updateUser = async (
             select: { id: true, name: true, email: true },
         });
     } catch (err: any) {
-        if (err.code === "P2025") throw new AppError("User not found", 404);
-        throw err;
+        handleNotFound(err, "User");
     }
 };
 
@@ -58,7 +49,6 @@ export const deleteUser = async (id: number, currentUserId: number) => {
     try {
         await prisma.user.delete({ where: { id } });
     } catch (err: any) {
-        if (err.code === "P2025") throw new AppError("User not found", 404);
-        throw err;
+        handleNotFound(err, "User");
     }
 };
