@@ -10,10 +10,6 @@ export const register = async ({name,email,password,}:
     email: string;
     password: string;
 }) => {
-    if (!name || !email || !password) {
-        throw new AppError("All fields are required", 400);
-    }
-
     const hashedPassword = await bcrypt.hash(password, 10);
 
     try {

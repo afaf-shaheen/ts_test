@@ -21,11 +21,6 @@ export const getUserById = async (id: number) => {
             tasks: true,
         },
     });
-
-    if (!user) {
-        throw new AppError("User not found", 404);
-    }
-
     return user;
 };
 

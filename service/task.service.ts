@@ -11,10 +11,6 @@ export const addTask = async ({
     status?: Status | string;
     user_id: number;
 }) => {
-    if (!title) {
-        throw new AppError("Title is required", 400);
-    }
-
     const task = await prisma.task.create({
         data: {
             title,
