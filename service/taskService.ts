@@ -8,7 +8,7 @@ export const addTask = async ({
     user_id,
 }: {
     title: string;
-    status?: string;
+    status?: Status | string;
     user_id: number;
 }) => {
     if (!title) {
@@ -18,7 +18,7 @@ export const addTask = async ({
     const task = await prisma.task.create({
         data: {
             title,
-            Status: status || "PENDING",
+            status: (status as Status | undefined) ?? Status.PENDING,
             user_id: user_id,
         },
     });
