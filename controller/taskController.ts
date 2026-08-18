@@ -1,71 +1,33 @@
-import { Response } from "express";
+import { NextFunction, Response } from "express";
 import { AuthRequest } from "../middleware/check";
 import prisma from "../prisma";
+import * as taskService from "../service/taskService";
 
 export const addTask = async (req: AuthRequest, res: Response) => {
-    const { title, status } = req.body;
-
-    if (!title) {
-        const error: any = new Error("Title is required");
-        error.statusCode = 400;
-        throw error;
-    }
-
-    const task = await prisma.task.create({
-        data: {
-            title,
-            status: status || "PENDING",
-            user_id: req.user!.id,
-        },
-    });
+    const task = await taskService.addTask({
+        title: req.body.title,
+        status: req.body.status,
+        user_id: req.user!.id,
+    })
 
     res.json({ message: "Task added successfully", task });
 };
 
 export const getTasks = async (req: AuthRequest, res: Response) => {
-    const { status } = req.query;
-    const tasks = await prisma.task.findMany({
-        where: status ? { status: status as any } : undefined,
-        include: { user: { select: { id: true, name: true, email: true } } },
-    });
-
-    res.json(tasks);
+    res.json(await taskService.getTasks(req.query.status as string | undefined));
 };
 
-export const updateTask = async (req: AuthRequest, res: Response) => {
-    const { id } = req.params;
-    
-    const { title, status } = req.body;
-
-    try {
-        const task = await prisma.task.update({
-            where: { id: Number(id) },
-            data: { title, status },
+export const updateTask = async (req: AuthRequest,res: Response,) => {
+    const task = await taskService.updateTask(
+        Number(req.params.id),
+        {
+            title: req.body.title,
+            status: req.body.status,
         });
-        res.json(task);
-    } catch (err: any) {
-        if (err.code === "P2025") {
-            const error: any = new Error("Task not found");
-            error.statusCode = 404;
-            throw error;
-        }
-        throw err;
-    }
-};
+        res.status(200).json(task);
+    };
 
 export const deleteTask = async (req: AuthRequest, res: Response) => {
-    const { id } = req.params;
-
-    try {
-        await prisma.task.delete({ where: { id: Number(id) } });
-        res.status(204).send();
-    } catch (err: any) {
-        if (err.code === "P2025") {
-            const error: any = new Error("Task not found");
-            error.statusCode = 404;
-            throw error;
-        }
-        throw err;
-    }
-    res.json({ message: "Task deleted successfully"});
+    await taskService.deleteTask(Number(req.params.id));
+    res.status(204).send();
 };

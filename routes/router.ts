@@ -8,8 +8,8 @@ import { addTask , deleteTask,updateTask,getTasks} from "../controller/taskContr
 
 const router = Router();
 
-router.post("/register", register);
 router.post("/login", login);
+router.post("/register", register);
 
 
 router.use(auth); 

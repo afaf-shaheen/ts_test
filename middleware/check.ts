@@ -1,7 +1,6 @@
 import jwt from "jsonwebtoken";
 import { Request, Response, NextFunction } from "express";
 import { JWT_SECRET } from "../config/env";
-import { errorHandler } from "./errorHandler";
 
 export interface AuthRequest extends Request {
     user?: {
