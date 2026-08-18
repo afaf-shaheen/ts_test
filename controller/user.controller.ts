@@ -1,6 +1,6 @@
 import { Response, NextFunction } from "express";
 import { AuthRequest } from "../middleware/check";
-import * as userService from "../service/userService";
+import * as userService from "../service/user.service";
 
 //just for me to test the user controller
 export const getAllUsers = async (req: AuthRequest, res: Response, next: NextFunction) => {

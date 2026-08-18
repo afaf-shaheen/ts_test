@@ -1,9 +1,9 @@
 import express, { Express } from "express";
 import cors from "cors";
-import authRoutes from "./routes/authRoutes";
-import userRoutes from "./routes/userRoutes";
-import taskRoutes from "./routes/taskRoutes";
-import { errorHandler } from "./middleware/errorHandler";
+import authRoutes from "./routes/auth.routes";
+import userRoutes from "./routes/user.routes";
+import taskRoutes from "./routes/task.routes";
+import { errorHandler } from "./middleware/error.handler";
 
 const app: Express = express();
 
