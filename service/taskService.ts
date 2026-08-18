@@ -1,4 +1,4 @@
-import { Status } from "@prisma/client";
+import { Status } from "../generated/prisma/enums";
 import prisma from "../prisma";
 import { AppError } from "../utils/errors";
 
@@ -26,12 +26,12 @@ export const addTask = async ({
     return task;
 };
 
-export const getTasks = async (status?: string) => {
+export const getTasks = async (userId: number, status?: string) => {
     return prisma.task.findMany({
-        where: status
-            ? { status: status as any }
-            : undefined,
-
+        where: {
+            user_id: userId,
+            ...(status ? { status: status as Status } : {}),
+        },
         include: {
             user: {
                 select: {
@@ -46,38 +46,41 @@ export const getTasks = async (status?: string) => {
 
 export const updateTask = async (
     id: number,
+    userId: number,
     data: {
         title?: string;
         status?: any;
     }
 ) => {
-    try {
-        return await prisma.task.update({
-            where: { id },
-            data: {
-                title: data.title,
-                status: data.status,
-            },
-        });
-    } catch (err: any) {
-        if (err.code === "P2025") {
-            throw new AppError("Task not found", 404);
-        }
+    const task = await prisma.task.findUnique({ where: { id } });
 
-        throw err;
+    if (!task) {
+        throw new AppError("Task not found", 404);
     }
+
+    if (task.user_id !== userId) {
+        throw new AppError("Not authorized to modify this task", 403);
+    }
+
+    return await prisma.task.update({
+        where: { id },
+        data: {
+            title: data.title,
+            status: data.status,
+        },
+    });
 };
 
-export const deleteTask = async (id: number) => {
-    try {
-        await prisma.task.delete({
-            where: { id },
-        });
-    } catch (err: any) {
-        if (err.code === "P2025") {
-            throw new AppError("Task not found", 404);
-        }
+export const deleteTask = async (id: number, userId: number) => {
+    const task = await prisma.task.findUnique({ where: { id } });
 
-        throw err;
+    if (!task) {
+        throw new AppError("Task not found", 404);
     }
+
+    if (task.user_id !== userId) {
+        throw new AppError("Not authorized to delete this task", 403);
+    }
+
+    await prisma.task.delete({ where: { id } });
 };
