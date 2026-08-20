@@ -37,6 +37,9 @@ export const updateUser = async (
             select: { id: true, name: true, email: true },
         });
     } catch (err: any) {
+        if (err.code === "P2002") {
+            throw new AppError("Email already exists", 409);
+        }
         handleNotFound(err, "User");
     }
 };

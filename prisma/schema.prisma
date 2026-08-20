@@ -29,3 +29,8 @@ enum Status {
   PENDING
   DONE
 }
+
+model Test { 
+  id          Int         @id @default(autoincrement())
+  note String 
+  }
